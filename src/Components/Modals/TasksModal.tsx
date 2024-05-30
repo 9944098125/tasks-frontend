@@ -3,15 +3,14 @@ import { Modal } from "react-bootstrap";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
-import DatePicker from "react-date-picker";
-import "react-date-picker/dist/DatePicker.css";
-import "react-calendar/dist/Calendar.css";
 import {
 	useCreateTodoMutation,
 	useGetTodoQuery,
 	useUpdateTodoMutation,
 } from "../../Redux/Actions/todo";
 import toast from "react-hot-toast";
+import CreateForm from "../../Utils/CreateForm";
+import { Values } from "../../Utils/interfaces";
 
 type CreateModalProps = {
 	showModal: any;
@@ -37,7 +36,7 @@ const TasksModal = (props: CreateModalProps) => {
 	const [updateTodo] = useUpdateTodoMutation();
 	const { refetch } = useGetTodoQuery();
 
-	const submitCreateModal = async (values: any) => {
+	const submitCreateModal = async (values: Values) => {
 		try {
 			const res = await createTodo({
 				title: values.title,
@@ -56,7 +55,7 @@ const TasksModal = (props: CreateModalProps) => {
 		}
 	};
 
-	const submitUpdateModal = async (id: string, values: any) => {
+	const submitUpdateModal = async (id: string, values: Values) => {
 		try {
 			const res = await updateTodo({
 				taskId: id,
@@ -76,11 +75,13 @@ const TasksModal = (props: CreateModalProps) => {
 		initialValues: {
 			title: task ? task.title : "",
 			description: task ? task.description : "",
-			dueDate: task ? new Date(task.dueDate) : new Date(),
+			dueDate: task
+				? new Date(task.dueDate).toDateString()
+				: new Date().toDateString(),
 			status: task ? task.status : "",
 		},
 		validationSchema: validationSchema,
-		onSubmit: (values: any, { resetForm }) => {
+		onSubmit: (values: Values, { resetForm }) => {
 			if (task) {
 				submitUpdateModal(task._id, values);
 			} else {
@@ -89,10 +90,6 @@ const TasksModal = (props: CreateModalProps) => {
 			resetForm();
 		},
 	});
-
-	const changeStatus = (event: any) => {
-		formik.setFieldValue("status", event.target.value);
-	};
 
 	return (
 		<React.Fragment>
@@ -108,82 +105,7 @@ const TasksModal = (props: CreateModalProps) => {
 					</Modal.Title>
 				</Modal.Header>
 				<Modal.Body>
-					<form onSubmit={formik.handleSubmit}>
-						<div className="w-full p-2">
-							<div className="flex flex-col w-full mb-4">
-								<label
-									htmlFor="title"
-									className="text-sm text-cyan-700 font-bold">
-									Title
-								</label>
-								<input
-									type="text"
-									name="title"
-									id="title"
-									className={`h-[45px] w-full px-2 bg-gray-200 rounded-md outline-none ${
-										formik.errors.title && formik.touched.title
-											? "border border-red-500"
-											: "border-none"
-									}`}
-									value={formik.values.title}
-									onChange={formik.handleChange}
-								/>
-							</div>
-							<div className="flex flex-col w-full mb-4">
-								<label
-									htmlFor="title"
-									className="text-sm text-cyan-700 font-bold">
-									Description
-								</label>
-								<textarea
-									name="description"
-									id="description"
-									className={`w-full px-2 bg-gray-200 rounded-md outline-none ${
-										formik.errors.description && formik.touched.description
-											? "border border-red-500"
-											: "border-none"
-									}`}
-									value={formik.values.description}
-									onChange={formik.handleChange}
-									rows={5}
-								/>
-							</div>
-							<div className="flex flex-col w-full mb-4">
-								<label
-									htmlFor="title"
-									className="text-sm text-cyan-700 font-bold">
-									Date
-								</label>
-								<DatePicker
-									className="w-full bg-gray-200"
-									value={formik.values.dueDate}
-									onChange={(date) => formik.setFieldValue("dueDate", date)}
-								/>
-							</div>
-							<div className="flex flex-col w-full mb-4">
-								<label
-									htmlFor="title"
-									className="text-sm text-cyan-700 font-bold">
-									Status
-								</label>
-								<select
-									name="status"
-									value={formik.values.status}
-									onChange={changeStatus}
-									className="w-full px-2 bg-gray-200 rounded-md outline-none border-none h-[45px]">
-									<option value="PENDING" defaultValue={"Pending"}>
-										Pending
-									</option>
-									<option value="COMPLETED">Completed</option>
-								</select>
-							</div>
-							<button
-								type="submit"
-								className="bg-cyan-700 text-white border-none h-[45px] hover:bg-cyan-800 outline-none w-full font-bold">
-								Submit
-							</button>
-						</div>
-					</form>
+					<CreateForm formik={formik} task={task} />
 				</Modal.Body>
 			</Modal>
 		</React.Fragment>

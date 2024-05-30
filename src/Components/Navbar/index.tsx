@@ -1,5 +1,4 @@
 import React from "react";
-import { FaMoon } from "react-icons/fa";
 import logo from "../../Assets/logo.png";
 import CreateButton from "../../Utils/CreateButton";
 

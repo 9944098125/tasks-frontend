@@ -18,7 +18,7 @@ const Task = (props: TaskProps) => {
 		<React.Fragment>
 			<div
 				onClick={() => setShowTaskModal(true)}
-				className="relative cursor-pointer w-[250px] h-[150px] rounded-lg shadow-lg p-3 bg-white me-3 mb-4">
+				className="relative cursor-pointer w-[300px] h-[150px] rounded-lg shadow-lg p-3 bg-white me-3 mb-4">
 				<h4 className="text-gray-600 font-bold text-2xl">{task.title}</h4>
 				<span className="absolute bottom-[10px] right-[10px]">
 					{task.status === "COMPLETED" ? (

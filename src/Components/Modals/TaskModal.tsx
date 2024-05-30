@@ -6,6 +6,7 @@ import {
 	useGetTodoQuery,
 } from "../../Redux/Actions/todo";
 import toast from "react-hot-toast";
+import Deadline from "../../Utils/Deadline";
 
 type TaskModalProps = {
 	showModal: boolean;
@@ -76,33 +77,7 @@ const TaskModal = (props: TaskModalProps) => {
 								Delete
 							</button>
 						</div>
-						<div className="absolute bottom-0 left-0 flex items-center space-x-4">
-							{task.status === "COMPLETED" ? (
-								<div className="flex items-center space-x-4">
-									<div
-										className="bg-green-500 h-[15px] w-[15px]"
-										style={{ borderRadius: "50%" }}></div>
-									<p className="text-sm m-0 ms-2 text-gray-600 font-bold">
-										{task.status}
-									</p>
-								</div>
-							) : (
-								<div className="flex items-center space-x-4">
-									<div
-										className="bg-red-500 h-[15px] w-[15px]"
-										style={{ borderRadius: "50%" }}></div>
-									<p className="text-sm m-0 ms-2 text-gray-600 font-bold">
-										{task.status}
-									</p>
-								</div>
-							)}
-							<p className="font-light m-0 ms-5 text-md">
-								Deadline is -{" "}
-								<span className="text-cyan-700 font-bold text-sm underline">
-									{task.dueDate.split("GMT")[0]}
-								</span>
-							</p>
-						</div>
+						<Deadline task={task} />
 					</div>
 				</Modal.Body>
 			</Modal>
