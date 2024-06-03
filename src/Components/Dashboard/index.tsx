@@ -1,37 +1,23 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Navbar from "../Navbar";
 import Task from "../EachTask";
 import { useGetTodoQuery } from "../../Redux/Actions/todo";
+import debounce from "lodash/debounce";
 
 const Dashboard = () => {
 	const { data, refetch } = useGetTodoQuery();
-	// console.log(data);
-	const [searchTerm, setSearchTerm] = React.useState("");
-	const [filteredTasks, setFilteredTasks] = React.useState<any[]>([]);
-	const [statusFilter, setStatusFilter] = React.useState("ALL");
+	const [searchTerm, setSearchTerm] = useState("");
+	const [filteredTasks, setFilteredTasks] = useState<any[]>([]);
+	const [statusFilter, setStatusFilter] = useState("ALL");
 
-	const filterTodo = () => {
-		if (searchTerm === "") {
-			setFilteredTasks(data?.tasks);
-		} else {
-			const filtered = data?.tasks.filter((task: any) =>
-				task.title.toLowerCase().includes(searchTerm.toLowerCase())
-			);
-			setFilteredTasks(filtered);
-		}
-	};
+	const debouncedFilter = useCallback(
+		debounce((term: string) => {
+			setSearchTerm(term);
+		}, 300),
+		[]
+	);
 
-	React.useEffect(() => {
-		refetch();
-	}, [refetch]);
-
-	React.useEffect(() => {
-		if (data) {
-			setFilteredTasks(data.tasks);
-		}
-	}, [data]);
-
-	React.useEffect(() => {
+	const filterTasks = useCallback(() => {
 		if (data) {
 			let filtered = data.tasks;
 
@@ -39,9 +25,33 @@ const Dashboard = () => {
 				filtered = filtered.filter((task: any) => task.status === statusFilter);
 			}
 
+			if (searchTerm !== "") {
+				filtered = filtered.filter((task: any) =>
+					task.title.toLowerCase().includes(searchTerm.toLowerCase())
+				);
+			}
+
 			setFilteredTasks(filtered);
 		}
-	}, [data, statusFilter]);
+	}, [data, searchTerm, statusFilter]);
+
+	useEffect(() => {
+		refetch();
+	}, [refetch]);
+
+	useEffect(() => {
+		if (data) {
+			setFilteredTasks(data.tasks);
+		}
+	}, [data]);
+
+	useEffect(() => {
+		filterTasks();
+	}, [searchTerm, statusFilter, filterTasks]);
+
+	const handleSearchInput = (event: any) => {
+		debouncedFilter(event.target.value);
+	};
 
 	const handleStatusChange = (event: any) => {
 		setStatusFilter(event.target.value);
@@ -50,7 +60,7 @@ const Dashboard = () => {
 	return (
 		<React.Fragment>
 			<Navbar
-				filterTodo={filterTodo}
+				filterTodo={handleSearchInput}
 				searchTerm={searchTerm}
 				setSearchTerm={setSearchTerm}
 				setStatusFilter={setStatusFilter}
@@ -63,7 +73,7 @@ const Dashboard = () => {
 						name="searchTerm"
 						value={searchTerm}
 						onChange={(event: any) => setSearchTerm(event?.target.value)}
-						onInput={filterTodo}
+						onInput={handleSearchInput}
 						className="h-[45px] w-[300px] border-none outline-none bg-gray-300 rounded px-2 py-1"
 					/>
 				</div>
