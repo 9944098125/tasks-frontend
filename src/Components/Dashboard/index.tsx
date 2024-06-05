@@ -2,20 +2,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import Navbar from "../Navbar";
 import Task from "../EachTask";
 import { useGetTodoQuery } from "../../Redux/Actions/todo";
-import debounce from "lodash/debounce";
 
 const Dashboard = () => {
 	const { data, refetch } = useGetTodoQuery();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [filteredTasks, setFilteredTasks] = useState<any[]>([]);
 	const [statusFilter, setStatusFilter] = useState("ALL");
-
-	const debouncedFilter = useCallback(
-		debounce((term: string) => {
-			setSearchTerm(term);
-		}, 300),
-		[]
-	);
 
 	const filterTasks = useCallback(() => {
 		if (data) {
@@ -49,9 +41,9 @@ const Dashboard = () => {
 		filterTasks();
 	}, [searchTerm, statusFilter, filterTasks]);
 
-	const handleSearchInput = (event: any) => {
-		debouncedFilter(event.target.value);
-	};
+	const handleSearchInput = useCallback((event: any) => {
+		setSearchTerm(event.target.value);
+	}, []);
 
 	const handleStatusChange = (event: any) => {
 		setStatusFilter(event.target.value);
